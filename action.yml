@@ -1,0 +1,38 @@
+name: 'PR Automation'
+description: 'Automate merging and closing PRs'
+inputs:
+  token:
+    description: 'Token to authenticate to github with'
+    required: true
+  autoCloseLabel:
+    description: 'Label of PRs to be automatically closed'
+    required: false
+  autoMergeLabel:
+    description: 'Label of PRs to be automatically merged'
+    required: false
+  warnClosingAfterSecs:
+    description: 'Warn user their PR will be closed after it has been open for x secs'
+    required: false
+  autoCloseAfterWarnSecs:
+    description: 'Auto close PRs secs after author has been warned'
+    required: false
+  closingSoonComment:
+    description: 'Comment to post on PRs that are closing soon'
+    default: 'This pull request is inactive and will be closed at @closeTime'
+    required: false
+  closingSoonLabel:
+    description: 'Label to apply to PRs that are closing soon'
+    default: 'closing-soon'
+    required: false
+  deleteOnMerge:
+    description: 'Delete branch once PR has been merged'
+    default: 'false'
+    required: false
+  deleteOnClose:
+    description: 'Delete branch if PR is closed'
+    default: 'false'
+    required: false
+
+runs:
+  using: 'node12'
+  main: 'index.js'
