@@ -8,6 +8,7 @@
     ],
     "rules": {
       "semi": 1,
+      "arrow-parens": 0,
       "prettier/prettier": [
         "error", {
           "semi": true

@@ -3,8 +3,7 @@ export const args = {
   autoMergeLabel: 'auto-merge',
   warnClosingAfterSecs: 60 * 60 * 3,
   autoCloseAfterWarnSecs: 60 * 60 * 6,
-  closingSoonComment:
-    'This pull request is inactive and will be closed at @closeTime',
+  closingSoonComment: 'This pull request is inactive and will be closed at @closeTime',
   closingSoonLabel: 'closing-soon',
   deleteOnMerge: false,
   deleteOnClose: false,
@@ -21,8 +20,8 @@ export const args = {
 
 export const context = {
   repo: {
-    owner: 'JSainsburyPLC',
-    repo: 'retail-k8s',
+    owner: 'AcmeSoftwareCo',
+    repo: 'test-repo',
   },
 };
 export const yesterday = () => {
@@ -39,16 +38,16 @@ export const fnAssert = (fn, props, invert) =>
     }),
   );
 
-  export const generatorToArray = async (gen) => {
-    const arr = [];
-    for await (let i of gen) {
-      arr.push(i);
-    }
-    return arr;
-  };
-
-  export async function* arrayToGenerator (arr){
-    for (let i = 0; i < arr.length; i++){
-      yield arr[i];
-    }
+export const generatorToArray = async gen => {
+  const arr = [];
+  for await (let i of gen) {
+    arr.push(i);
   }
+  return arr;
+};
+
+export async function* arrayToGenerator(arr) {
+  for (let i = 0; i < arr.length; i++) {
+    yield arr[i];
+  }
+}

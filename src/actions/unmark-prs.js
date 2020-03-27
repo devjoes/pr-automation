@@ -1,3 +1,4 @@
+import filter from '@async-generators/filter';
 import { hasLabel, updatedInTheLastSecs } from '../common';
 
 const unMarkForClosure = async (opts, pr) => {
@@ -9,22 +10,15 @@ const unMarkForClosure = async (opts, pr) => {
   });
   await deleteComments(opts, pr.number);
 };
-const deleteComments = async (
-  { client, context, args },
-  issueNumber,
-) => {
+const deleteComments = async ({ client, context, args }, issueNumber) => {
   const comments = (
     await client.issues.listComments({
       ...context.repo,
       issue_number: issueNumber,
     })
-  ).data.filter(
-    (c) =>
-      c.body.indexOf(args.closingSoonComment.replace(/\@.*/, '')) ===
-      0,
-  );
+  ).data.filter(c => c.body.indexOf(args.closingSoonComment.replace(/\@.*/, '')) === 0);
 
-  await comments.forEach(async (c) => {
+  await comments.forEach(async c => {
     await client.issues.deleteComment({
       ...context.repo,
       comment_id: c.id,
@@ -32,13 +26,16 @@ const deleteComments = async (
   });
 };
 
-export default async (opts, prs) =>
-await prs
-    .filter(
-      (p) =>
-        p.labels &&
-        hasLabel(p, opts.args.autoCloseLabel) &&
-        hasLabel(p, opts.args.closingSoonLabel) &&
-        updatedInTheLastSecs(p, opts.args.warnClosingAfterSecs),
-    )
-    .forEach(async (i) => await unMarkForClosure(opts, i));
+export default opts => async prs => {
+  const filtered = filter(
+    prs,
+    p =>
+      p.labels &&
+      hasLabel(p, opts.args.autoCloseLabel) &&
+      hasLabel(p, opts.args.closingSoonLabel) &&
+      updatedInTheLastSecs(p, opts.args.warnClosingAfterSecs),
+  );
+  for await (let pr of filtered) {
+    await unMarkForClosure(opts, pr);
+  }
+};

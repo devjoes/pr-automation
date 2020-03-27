@@ -1,18 +1,19 @@
-import filterAsync from 'node-filter-async';
 import { hasLabel } from '../common';
+import filter from '@async-generators/filter';
 
-export default async (opts, prs) => {
+export default opts => async prs => {
   const { args } = opts;
 
-  const prsToClose = await filterAsync(
+  const prsToClose = filter(
     prs,
-    async (p) =>
-      hasLabel(p, args.autoCloseLabel) &&
-      hasLabel(p, args.closingSoonLabel) &&
-      (await getLatestCommentAgeSecs(opts, p.number)) >
-        args.autoCloseAfterWarnSecs,
+    p => hasLabel(p, args.autoCloseLabel) && hasLabel(p, args.closingSoonLabel),
   );
-  await prsToClose.forEach(async (p) => await closePr(opts, p));
+
+  for await (let pr of prsToClose) {
+    if ((await getLatestCommentAgeSecs(opts, pr.number)) > args.autoCloseAfterWarnSecs) {
+      await closePr(opts, pr);
+    }
+  }
 };
 
 const closePr = async ({ context, client, args }, p) => {
@@ -26,22 +27,14 @@ const closePr = async ({ context, client, args }, p) => {
   }
 };
 
-const getLatestCommentAgeSecs = async (
-  { client, context, args },
-  issueNumber,
-) => {
+const getLatestCommentAgeSecs = async ({ client, context, args }, issueNumber) => {
   const comments = await client.issues.listComments({
     ...context.repo,
     issue_number: issueNumber,
   });
   const latestCommentDate =
     comments.data
-      .filter(
-        (c) =>
-          c.body.indexOf(
-            args.closingSoonComment.replace(/\@.*/, ''),
-          ) === 0,
-      )
+      .filter(c => c.body.indexOf(args.closingSoonComment.replace(/\@.*/, '')) === 0)
       .reduce((latest, i) => {
         const created = new Date(i.created_at);
         if (!latest || created > latest) {

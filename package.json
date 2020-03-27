@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "mkdir dist -p && rm -Rf dist/* && babel src -s -d dist --ignore '**/*.test.js'",
-    "test": "jest --watch-all"
+    "build": "babel src -s -d dist --ignore '**/*.test.js'",
+    "test": "jest --watch-all",
+    "start": "babel-node -r dotenv/config src/index.js"
   },
   "moduleDirectories": [
     "node_modules",
@@ -17,13 +18,15 @@
   "dependencies": {
     "@actions/core": "^1.2.3",
     "@actions/github": "^2.1.1",
-    "node-filter-async": "^2.0.0"
+    "@async-generators/filter": "^0.1.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.9.0",
+    "@babel/node": "^7.8.7",
     "@babel/preset-env": "^7.9.0",
     "babel-jest": "^25.1.0",
+    "dotenv": "^8.2.0",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-prettier": "^3.1.2",

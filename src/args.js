@@ -1,28 +1,34 @@
-import core from "@actions/core";
+import * as core from '@actions/core';
+import process from 'process';
 
-//todo: these are now pointless ans hould be removed
 const autoCloseLabel = 'autoCloseLabel';
-const autoMergeLabel = 'autoMergeLabel';
 const warnClosingAfterSecs = 'warnClosingAfterSecs';
 const autoCloseAfterWarnSecs = 'autoCloseAfterWarnSecs';
-const closingSoonComment = 'closingSoonComment';
-const closingSoonLabel = 'closingSoonLabel';
 
 export default () => {
-    const args = {
-      token: core.getInput("token", { required: true }),
-      autoCloseLabel: core.getInput(autoCloseLabel),
-      autoMergeLabel: core.getInput(autoMergeLabel),
-      warnClosingAfterSecs: parseInt(core.getInput(warnClosingAfterSecs)),
-      autoCloseAfterWarnSecs: parseInt(core.getInput(autoCloseAfterWarnSecs)),
-      closingSoonComment: core.getInput(closingSoonComment),
-      closingSoonLabel: core.getInput(closingSoonLabel),
-      deleteOnClose: core.getInput('deleteOnClose').toLowerCase() == 'true',
-      deleteOnMerge: core.getInput('deleteOnMerge').toLowerCase() == 'true',
-    };
-    if (args.autoCloseLabel && args.autoCloseLabel !== '' && (!args.warnClosingAfterSecs || !autoCloseAfterWarnSecs)) {
-        core.setFailed(`If ${autoCloseLabel} is specified then ${warnClosingAfterSecs} and ${autoCloseAfterWarnSecs} must also be specified`);
-        return;
-    }
-    return args;
+  const getArg = (name, opts) =>
+    process.env['PR_AUTOMATION_' + name.replace(/([A-Z])/g, '_$1').toUpperCase()] ||
+    core.getInput(name, opts);
+  const args = {
+    token: getArg('token', { required: true }),
+    autoCloseLabel: getArg('autoCloseLabel'),
+    autoMergeLabel: getArg('autoMergeLabel'),
+    warnClosingAfterSecs: parseInt(getArg('warnClosingAfterSecs')),
+    autoCloseAfterWarnSecs: parseInt(getArg('autoCloseAfterWarnSecs')),
+    closingSoonComment: getArg('closingSoonComment'),
+    closingSoonLabel: getArg('closingSoonLabel'),
+    deleteOnClose: getArg('deleteOnClose').toLowerCase() == 'true',
+    deleteOnMerge: getArg('deleteOnMerge').toLowerCase() == 'true',
   };
+  if (
+    args.autoCloseLabel &&
+    args.autoCloseLabel !== '' &&
+    (!args.warnClosingAfterSecs || !autoCloseAfterWarnSecs)
+  ) {
+    core.setFailed(
+      `If ${autoCloseLabel} is specified then ${warnClosingAfterSecs} and ${autoCloseAfterWarnSecs} must also be specified`,
+    );
+    return;
+  }
+  return args;
+};
