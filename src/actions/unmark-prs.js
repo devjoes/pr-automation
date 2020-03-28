@@ -27,6 +27,7 @@ const deleteComments = async ({ client, context, args }, issueNumber) => {
 };
 
 export default opts => async prs => {
+  const {logger }= opts;
   const filtered = filter(
     prs,
     p =>
@@ -35,7 +36,12 @@ export default opts => async prs => {
       hasLabel(p, opts.args.closingSoonLabel) &&
       updatedInTheLastSecs(p, opts.args.warnClosingAfterSecs),
   );
+  const processedPrNumbers = [];
   for await (let pr of filtered) {
+    logger.debug(`Unmarked PR ${pr.number} for deletion`);
     await unMarkForClosure(opts, pr);
+    processedPrNumbers.push(pr.number);
   }
+  logger.info(`Unmarked ${processedPrNumbers.length} PRs for closure`);
+  return processedPrNumbers;
 };

@@ -19,6 +19,10 @@ export default () => {
     closingSoonLabel: getArg('closingSoonLabel'),
     deleteOnClose: getArg('deleteOnClose').toLowerCase() == 'true',
     deleteOnMerge: getArg('deleteOnMerge').toLowerCase() == 'true',
+    branchBlackListLowerCase: (getArg('branchBlackList') || 'master')
+      .split(/\s?\,\s?/g)
+      .map(s => s.trim().toLowerCase())
+      .filter(s => s.length > 0),
   };
   if (
     args.autoCloseLabel &&

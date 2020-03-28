@@ -32,6 +32,10 @@ inputs:
     description: 'Delete branch if PR is closed'
     default: 'false'
     required: false
+  branchBlackList:
+    description: 'PRs where these branches are the base or head will be ignored.'
+    default: 'master'
+    required: true
 
 runs:
   using: 'node12'

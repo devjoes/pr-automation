@@ -2,18 +2,23 @@ import { hasLabel } from '../common';
 import filter from '@async-generators/filter';
 
 export default opts => async prs => {
-  const { args } = opts;
+  const { args, logger } = opts;
 
   const prsToClose = filter(
     prs,
     p => hasLabel(p, args.autoCloseLabel) && hasLabel(p, args.closingSoonLabel),
   );
 
+  const processedPrNumbers = [];
   for await (let pr of prsToClose) {
     if ((await getLatestCommentAgeSecs(opts, pr.number)) > args.autoCloseAfterWarnSecs) {
+      logger.info(`Closing PR #${pr.number} '${pr.title}'`);
       await closePr(opts, pr);
+      processedPrNumbers.push(pr.number);
     }
   }
+  logger.info(`Closed ${processedPrNumbers.length} PRs`);
+  return processedPrNumbers;
 };
 
 const closePr = async ({ context, client, args }, p) => {

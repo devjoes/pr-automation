@@ -15,16 +15,28 @@ const markForClosure = async ({ client, context, args }, pr) => {
 };
 
 export default opts => async prs => {
-  const { args } = opts;
-  const toMark = filter(
-    prs,
-    p =>
+  const { args, logger } = opts;
+  //console.log(prs)
+  const toMark = filter(prs, p => {
+    // p.then(r => console.log('awaited',r))
+    // console.log(
+    //   hasLabel(p, args.autoCloseLabel),
+    //   !hasLabel(p, args.closingSoonLabel),
+    //   !updatedInTheLastSecs(p, args.warnClosingAfterSecs),
+    // );
+    return (
       p.labels &&
       hasLabel(p, args.autoCloseLabel) &&
       !hasLabel(p, args.closingSoonLabel) &&
-      !updatedInTheLastSecs(p, args.warnClosingAfterSecs),
-  );
+      !updatedInTheLastSecs(p, args.warnClosingAfterSecs)
+    );
+  });
+  const processedPrNumbers = [];
   for await (let pr of toMark) {
+    logger.debug(`Marking PR ${pr.number} for closure`);
     await markForClosure(opts, pr);
+    processedPrNumbers.push(pr.number);
   }
+  logger.info(`Marked ${processedPrNumbers.length} PRs for closure`);
+  return processedPrNumbers;
 };
