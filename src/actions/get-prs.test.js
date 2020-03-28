@@ -2,15 +2,12 @@ import mockClient from '../mock-client';
 import getPrs from './get-prs';
 import { args, context, yesterday, generatorToArray, logInfoNotErrors } from '../common-test.js';
 
-let disableAssert = false;
 let logger;
 beforeEach(() => {
   logger = logInfoNotErrors();
 });
 afterEach(() => {
-  if (!disableAssert) {
-    logger.assert();
-  }
+  logger.assert();
 });
 
 it('Gets PRs', async () => {
@@ -43,7 +40,12 @@ it('Gets pages of PRs', async () => {
 });
 
 it('Ignore PRs to/from blacklisted branches', async () => {
-  disableAssert = true;
+  const localLogger = {
+    debug: logger.debug,
+    info: logger.info,
+    error: logger.error,
+    warning: jest.fn(),
+  };
   const client = new mockClient(args, yesterday(), [args.autoCloseLabel]);
   const prTemplate = client.fakePrsArray[0];
   args.branchBlackListLowerCase = ['foo', 'bar'];
@@ -57,10 +59,11 @@ it('Ignore PRs to/from blacklisted branches', async () => {
       ],
     })
     .mockReturnValue({ data: [] });
-  const prs = await generatorToArray(await getPrs({ client, context, logger, args })());
+  const prs = await generatorToArray(
+    await getPrs({ client, context, logger: localLogger, args })(),
+  );
   expect(prs).not.toBeUndefined();
-  console.log(prs);
   expect(prs.length).toEqual(1);
   expect(prs[0].head.ref).toEqual('baz');
-  expect(logger.warning).toBeCalledTimes(3);
+  expect(localLogger.warning).toBeCalledTimes(3);
 });

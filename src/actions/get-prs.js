@@ -1,4 +1,4 @@
-import { describePr,branchNameFromRef } from '../common';
+import { describePr, branchNameFromRef } from '../common';
 
 export default ({ client, context, logger, args }) =>
   async function* () {
@@ -19,13 +19,16 @@ export default ({ client, context, logger, args }) =>
       }
       for (let i = 0; i < prs.data.length; i++) {
         const pr = prs.data[i];
-        if (
-          args.branchBlackListLowerCase.indexOf(branchNameFromRef(pr.head.ref)) === -1 &&
-          args.branchBlackListLowerCase.indexOf(branchNameFromRef(pr.base.ref)) === -1
-        ) {
+        const headOk = args.branchBlackListLowerCase.indexOf(branchNameFromRef(pr.head.ref)) === -1;
+        const baseOk = args.branchBlackListLowerCase.indexOf(branchNameFromRef(pr.base.ref)) === -1;
+        if (headOk && baseOk) {
           yield pr;
         } else {
-          logger.warning('Refused to process ' + describePr(pr));
+          logger.warning(
+            `Refused to process ${describePr(pr)} the branch's${
+              headOk ? '' : ` HEAD (${pr.head.ref})`
+            }${baseOk ? '' : ` BASE (${pr.base.ref})`} is blacklisted`,
+          );
         }
       }
     } while (prs.data.length && page < 1000);

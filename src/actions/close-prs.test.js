@@ -53,5 +53,5 @@ it('Deletes PRs that have been labeled and have expired', async () => {
     logger,
   })(client.fakePrs);
   expect(processedPrNumbers).toEqual([123]);
-  fnAssert(client.git.deleteRef, { ref: 'refs/heads/testpr' });
+  fnAssert(client.git.deleteRef, { ref: 'heads/testpr' });
 });

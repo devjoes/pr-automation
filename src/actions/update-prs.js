@@ -12,7 +12,7 @@ const needsUpdate = async ({ client, context }, pr) => {
     ...context.repo,
     pull_number: pr.number,
   });
-  return fullPr.data.mergeable_status === 'behind';
+  return fullPr.data.mergeable_state === 'behind';
 };
 
 export default opts => async prs => {

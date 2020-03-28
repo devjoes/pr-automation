@@ -26,8 +26,17 @@ it('Ignores old PRs', async () => {
   fnAssert(client.issues.deleteComment, {}, true);
 });
 
-it('Removes labels from marked PRs', async () => {
+it('Ignores PRs where the most recent change is our comment', async () => {
   const client = new mockClient(args, new Date(), [args.autoCloseLabel, args.closingSoonLabel]);
+  
+  await unmarkPrs({ client, context, args, logger })(client.fakePrs);
+  fnAssert(client.issues.removeLabel, {}, true);
+  fnAssert(client.issues.listComments, { issue_number: 123 });
+  fnAssert(client.issues.deleteComment, {}, true);
+});
+
+it('Removes labels from marked PRs', async () => {
+  const client = new mockClient(args, new Date(), [args.autoCloseLabel, args.closingSoonLabel], yesterday());
   const processedPrNumbers = await unmarkPrs({ client, context, args, logger })(client.fakePrs);
   expect(processedPrNumbers).toEqual([123]);
   fnAssert(client.issues.removeLabel, {

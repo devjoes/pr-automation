@@ -1,13 +1,13 @@
 import { nowPlusSecs } from './common';
 import { arrayToGenerator, getFakePrs } from './common-test';
 
-export default function (args, date, labels) {
+export default function (args, date, labels, commentDate) {
   this.getFakePrs = getFakePrs;
   this.getFakeComments = () => ({
     data: [
       {
         id: 321,
-        created_at: date.toISOString(),
+        created_at: (commentDate||date).toISOString(),
         body: args.closingSoonComment.replace(
           /\@closeTime/g,
           nowPlusSecs(args.autoCloseAfterWarnSecs),

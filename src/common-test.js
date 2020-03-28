@@ -74,7 +74,7 @@ export const getFakePrs = (date, labels) => [
     _links: {},
     author_association: 'COLLABORATOR',
     head: {
-      ref: 'refs/heads/testpr',
+      ref: 'testpr',
     },
   },
 ];

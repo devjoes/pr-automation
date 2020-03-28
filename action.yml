@@ -2,7 +2,7 @@ name: 'PR Automation'
 description: 'Automate merging and closing PRs'
 inputs:
   token:
-    description: 'Token to authenticate to github with'
+    description: 'Token to authenticate with when connecting to Github'
     required: true
   autoCloseLabel:
     description: 'Label of PRs to be automatically closed'

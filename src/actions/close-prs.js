@@ -1,5 +1,5 @@
-import { hasLabel } from '../common';
 import filter from '@async-generators/filter';
+import { hasLabel, describePr, getLatestClosingCommentAgeSecs, deletePrBranch } from '../common';
 
 export default opts => async prs => {
   const { args, logger } = opts;
@@ -11,8 +11,9 @@ export default opts => async prs => {
 
   const processedPrNumbers = [];
   for await (let pr of prsToClose) {
-    if ((await getLatestCommentAgeSecs(opts, pr.number)) > args.autoCloseAfterWarnSecs) {
-      logger.info(`Closing PR #${pr.number} '${pr.title}'`);
+    const latestCommentAge = await getLatestClosingCommentAgeSecs(opts, pr.number);
+    if (latestCommentAge != null && latestCommentAge > args.autoCloseAfterWarnSecs) {
+      logger.info(`Closing ${describePr(pr)}`);
       await closePr(opts, pr);
       processedPrNumbers.push(pr.number);
     }
@@ -21,32 +22,14 @@ export default opts => async prs => {
   return processedPrNumbers;
 };
 
-const closePr = async ({ context, client, args }, p) => {
+const closePr = async (opts, p) => {
+  const {client, context, args} = opts;
   await client.pulls.update({
     ...context.repo,
     pull_number: p.number,
     state: 'closed',
   });
   if (args.deleteOnClose) {
-    await client.git.deleteRef({ ...context.repo, ref: p.head.ref });
+    await deletePrBranch(opts, p);
   }
-};
-
-const getLatestCommentAgeSecs = async ({ client, context, args }, issueNumber) => {
-  const comments = await client.issues.listComments({
-    ...context.repo,
-    issue_number: issueNumber,
-  });
-  const latestCommentDate =
-    comments.data
-      .filter(c => c.body.indexOf(args.closingSoonComment.replace(/\@.*/, '')) === 0)
-      .reduce((latest, i) => {
-        const created = new Date(i.created_at);
-        if (!latest || created > latest) {
-          return created;
-        }
-        return latest;
-      }, undefined) || new Date(0);
-
-  return (new Date().getTime() - latestCommentDate.getTime()) / 1000;
 };

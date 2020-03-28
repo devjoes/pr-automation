@@ -1,5 +1,5 @@
 import filter from '@async-generators/filter';
-import { hasLabel } from '../common';
+import { hasLabel, describePr, deletePrBranch } from '../common';
 
 const merge = async ({ client, context }, pr) =>
   await client.pulls.merge({
@@ -12,7 +12,12 @@ const isMergable = async ({ client, context }, pr) => {
     ...context.repo,
     pull_number: pr.number,
   });
-  return fullPr.data.mergeable && fullPr.data.mergeable_state === 'clean';
+  console.log(fullPr.data.mergeable, fullPr.data.mergeable_state);
+  return (
+    fullPr.data.mergeable &&
+    (fullPr.data.mergeable_state === 'clean'
+     || fullPr.data.mergeable_state === 'unstable') // this means that non required builds are failing
+  );
 };
 
 export default opts => async prs => {
@@ -21,8 +26,11 @@ export default opts => async prs => {
   const processedPrNumbers = [];
   for await (let pr of filtered) {
     if (await isMergable(opts, pr)) {
-      logger.info(`Merging PR #${pr.number} '${pr.title}'`);
+      logger.info(`Merging ${describePr(pr)}`);
       await merge(opts, pr);
+      if (opts.args.deleteOnMerge) {
+        await deletePrBranch(opts, pr);
+      }
       processedPrNumbers.push(pr.number);
     }
   }

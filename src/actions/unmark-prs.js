@@ -1,5 +1,5 @@
 import filter from '@async-generators/filter';
-import { hasLabel, updatedInTheLastSecs } from '../common';
+import { hasLabel, updatedInTheLastSecs, getLatestClosingCommentAgeSecs } from '../common';
 
 const unMarkForClosure = async (opts, pr) => {
   const { context, client, args } = opts;
@@ -27,7 +27,7 @@ const deleteComments = async ({ client, context, args }, issueNumber) => {
 };
 
 export default opts => async prs => {
-  const {logger }= opts;
+  const { logger } = opts;
   const filtered = filter(
     prs,
     p =>
@@ -38,9 +38,12 @@ export default opts => async prs => {
   );
   const processedPrNumbers = [];
   for await (let pr of filtered) {
-    logger.debug(`Unmarked PR ${pr.number} for deletion`);
-    await unMarkForClosure(opts, pr);
-    processedPrNumbers.push(pr.number);
+    const oldestComment = await getLatestClosingCommentAgeSecs(opts, pr.number) || opts.args.warnClosingAfterSecs;
+    if (oldestComment >= opts.args.warnClosingAfterSecs) {
+      logger.debug(`Unmarked PR ${pr.number} for deletion`);
+      await unMarkForClosure(opts, pr);
+      processedPrNumbers.push(pr.number);
+    }
   }
   logger.info(`Unmarked ${processedPrNumbers.length} PRs for closure`);
   return processedPrNumbers;
