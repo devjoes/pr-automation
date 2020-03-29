@@ -6,7 +6,7 @@
   "scripts": {
     "build": "babel src -s -d transpiled --ignore '**/*.test.js'",
     "package": "npm run build; ncc build transpiled/index.js -o dist",
-    "test": "jest --watch-all",
+    "test": "jest",
     "start": "babel-node -r dotenv/config src/index.js",
     "start_package": "npm run package; export $(sed 's/[@ ]//g' .env | xargs -0); node dist/index.js"
   },
