@@ -7,7 +7,7 @@ export const nowPlusSecs = secs => {
 export const updatedInTheLastSecs = (p, secs) =>
   (new Date().getTime() - new Date(p.updated_at).getTime()) / 1000 < secs;
 
-export const hasLabel = (p, label) => p.labels.filter(l => l.name === label).length > 0;
+export const hasLabel = (p, label) => label === '*' || p.labels.filter(l => l.name === label).length > 0;
 
 export const describePr = pr => `PR #${pr.number} '${pr.title}'`;
 

@@ -18,6 +18,17 @@ it('Ignores unlabeled PRs', async () => {
   fnAssert(client.git.deleteRef, {}, true);
 });
 
+it('Processes PRs that are unlabeled if the autoMergeLabel is *', async () => {
+  const client = new mockClient(args, yesterday(), []);
+  client.pulls.get = jest.fn(() => ({
+    data: { ...client.fakePrs[0], mergeable: false },
+  }));
+  await mergePrs({ client, context, args: { ...args, autoMergeLabel: '*' }, logger })(
+    client.fakePrs,
+  );
+  fnAssert(client.pulls.get, { pull_number: 123 });
+});
+
 it('Ignores umergable PRs', async () => {
   const client = new mockClient(args, yesterday(), [args.autoMergeLabel]);
   client.pulls.get = jest.fn(() => ({

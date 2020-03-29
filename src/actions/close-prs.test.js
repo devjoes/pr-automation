@@ -55,3 +55,16 @@ it('Deletes PRs that have been labeled and have expired', async () => {
   expect(processedPrNumbers).toEqual([123]);
   fnAssert(client.git.deleteRef, { ref: 'heads/testpr' });
 });
+
+it('Deletes PRs that have been labeled and have expired even if the autoCloseLabel is *', async () => {
+  const client = new mockClient(args, yesterday(), [args.closingSoonLabel]);
+
+  const processedPrNumbers = await closePrs({
+    client,
+    context,
+    args: { ...args, deleteOnClose: true, autoCloseLabel: '*' },
+    logger,
+  })(client.fakePrs);
+  expect(processedPrNumbers).toEqual([123]);
+  fnAssert(client.git.deleteRef, { ref: 'heads/testpr' });
+});

@@ -8,16 +8,20 @@ inputs:
     description: 'Token to authenticate with when connecting to Github'
     required: true
   autoCloseLabel:
-    description: 'Label of PRs to be automatically closed'
+    description: 'Label of PRs to be automatically closed (or * for all PRs)'
+    default: 'auto-close'
     required: false
   autoMergeLabel:
-    description: 'Label of PRs to be automatically merged'
+    description: 'Label of PRs to be automatically merged (or * for all PRs)'
+    default: 'auto-merge'
     required: false
-  warnClosingAfterSecs:
-    description: 'Warn user their PR will be closed after it has been open for x secs'
+  warnClosingAfter:
+    description: 'Warn user their PR will be closed after it has been open for x duration (can be specified as 1s,2m,3h etc)'
+    default: '3d'
     required: false
-  autoCloseAfterWarnSecs:
-    description: 'Auto close PRs secs after author has been warned'
+  autoCloseAfterWarn:
+    description: 'Auto close PRs x duration after author has been warned (can be specified as 1s,2m,3h etc)'
+    default: '1d'
     required: false
   closingSoonComment:
     description: 'Comment to post on PRs that are closing soon'
@@ -39,7 +43,6 @@ inputs:
     description: 'PRs where these branches are the base or head will be ignored.'
     default: 'master'
     required: true
-
 runs:
   using: 'node12'
   main: 'index.js'

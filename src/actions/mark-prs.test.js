@@ -10,6 +10,24 @@ afterEach(() => {
   logger.assert();
 });
 
+it('Ignores PRs that are unlabeled', async () => {
+  const client = new mockClient(args, yesterday(), []);
+  await markPrs({ client, context, args, logger })(client.fakePrs);
+  fnAssert(client.issues.addLabels, {}, true);
+  fnAssert(client.issues.createComment, {}, true);
+});
+
+it('Processes PRs that are unlabeled if the autoCloseLabel is *', async () => {
+  const client = new mockClient(args, yesterday(), []);
+  const processedPrNumbers = await markPrs({
+    client,
+    context,
+    args: { ...args, autoCloseLabel: '*' },
+    logger,
+  })(client.fakePrs);
+  expect(processedPrNumbers).toEqual([123]);
+});
+
 it('Ignores PRs that are new', async () => {
   const client = new mockClient(args, Date(), [args.autoCloseLabel]);
   await markPrs({ client, context, args, logger })(client.fakePrs);
