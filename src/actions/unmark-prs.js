@@ -1,5 +1,5 @@
 import filter from '@async-generators/filter';
-import { hasLabel, updatedInTheLastSecs, getLatestClosingCommentAgeSecs } from '../common';
+import { hasLabel, updatedInTheLastSecs, getLatestClosingCommentAgeSecs, describePr } from '../common';
 
 const unMarkForClosure = async (opts, pr) => {
   const { context, client, args } = opts;
@@ -40,7 +40,7 @@ export default opts => async prs => {
   for await (let pr of filtered) {
     const oldestComment = await getLatestClosingCommentAgeSecs(opts, pr.number) || opts.args.warnClosingAfterSecs;
     if (oldestComment >= opts.args.warnClosingAfterSecs) {
-      logger.debug(`Unmarked PR ${pr.number} for deletion`);
+      logger.debug(`Unmarked PR ${describePr(pr)} for closure`);
       await unMarkForClosure(opts, pr);
       processedPrNumbers.push(pr.number);
     }

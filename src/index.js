@@ -6,7 +6,7 @@ import processPrs from './process-prs';
 const main = async () => {
   const logger = getLogger();
   try {
-    const args = getArgs();
+    const args = getArgs(logger);
     const actions = initActions(args, logger);
     await processPrs(args, actions);
   } catch (err) {

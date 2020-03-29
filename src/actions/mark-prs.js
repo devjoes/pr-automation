@@ -1,5 +1,5 @@
 import filter from '@async-generators/filter';
-import { hasLabel, updatedInTheLastSecs, nowPlusSecs } from '../common';
+import { hasLabel, updatedInTheLastSecs, nowPlusSecs, describePr } from '../common';
 
 const markForClosure = async ({ client, context, args }, pr) => {
   await client.issues.addLabels({
@@ -27,7 +27,7 @@ export default opts => async prs => {
 
   const processedPrNumbers = [];
   for await (let pr of toMark) {
-    logger.debug(`Marking PR ${pr.number} for closure`);
+    logger.debug(`Marking PR ${describePr(pr)} for closure`);
     await markForClosure(opts, pr);
     processedPrNumbers.push(pr.number);
   }

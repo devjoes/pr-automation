@@ -12,7 +12,6 @@ const isMergable = async ({ client, context }, pr) => {
     ...context.repo,
     pull_number: pr.number,
   });
-  console.log(fullPr.data.mergeable, fullPr.data.mergeable_state);
   return (
     fullPr.data.mergeable &&
     (fullPr.data.mergeable_state === 'clean'
