@@ -1,5 +1,8 @@
 name: 'PR Automation'
-description: 'Automate merging and closing PRs'
+description: 'Automatically update pull requests if required, merge pull requests once any checks/approvals have passed. Comment on and label pull requests that are becoming stale and then close them. Once a PR has been merged/closed it can also delete the branch.'
+branding:
+  icon: check
+  color: green
 inputs:
   token:
     description: 'Token to authenticate with when connecting to Github'
