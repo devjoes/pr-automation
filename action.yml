@@ -1,5 +1,5 @@
 name: 'PR Automation'
-description: 'Automatically update pull requests if required, merge pull requests once any checks/approvals have passed. Comment on and label pull requests that are becoming stale and then close them. Once a PR has been merged/closed it can also delete the branch.'
+description: 'Automatically update, merge, mark stale, mark un-stale and close pull requests.'
 branding:
   icon: check
   color: green
