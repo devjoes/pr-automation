@@ -34,13 +34,8 @@ export default logger => {
     token: obfuscate(args.token)
   }, null, 2));
 
-  const fail = msg => {
-    logger.error(msg);
-    core.setFailed(msg);
-  };
-
   if (!args.token || args.token.trim().length === 0) {
-    fail('token is required');
+    logger.error('token is required');
     return;
   }
   if (
@@ -51,7 +46,7 @@ export default logger => {
       !args.closingSoonComment ||
       !args.closingSoonLabel)
   ) {
-    fail(
+    logger.error(
       'If autoCloseLabel is specified then warnClosingAfter, autoCloseAfterWarn, closingSoonComment and closingSoonLabel must also be specified',
     );
     return;
